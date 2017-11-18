@@ -23,10 +23,10 @@ public class QTree {
         if(value != -1){
             result = new FourZipNode(value);
         }else {
-            result = new FourZipNode(new FourZipNode(Integer.parseInt(file.readLine())),
-                    new FourZipNode(Integer.parseInt(file.readLine())),
-                    new FourZipNode(Integer.parseInt(file.readLine())),
-                    new FourZipNode(Integer.parseInt(file.readLine())));
+            result = new FourZipNode(parse(file),
+                    parse(file),
+                    parse(file),
+                    parse(file));
         }
         return result;
     }
@@ -42,12 +42,27 @@ public class QTree {
         return theQTree;
     }
 
+    private String preorder(FourZipNode node){
+        String result = "";
+        result += node.getValue() +"\n";
+        if(node.getValue() == -1) {
+            result += preorder(node.getChild(Quadrant.UL));
+            result += preorder(node.getChild(Quadrant.UR));
+            result += preorder(node.getChild(Quadrant.LL));
+            result += preorder(node.getChild(Quadrant.LR));
+
+        }
+        return result;
+
+    }
+
+    public String toString(){
+        String result = preorder(root);
+        return result;
+    }
 
 
-
-
-
-
+/*
     //Legal after uncompress has been called
     public int getRawSize() throws FourZipException{
         if (rawImage == null){
@@ -77,6 +92,5 @@ public class QTree {
     public void uncompress() throws FourZipException{
         uncompress(Coordinate.ORIGIN,);
     }
-
-
+*/
 }
