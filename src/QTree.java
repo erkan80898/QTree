@@ -43,14 +43,18 @@ public class QTree {
     }
 
     private String preorder(FourZipNode node){
+        if(node == null) return null;
         String result = "";
-        result += node.getValue() +"\n";
+        if(node.getValue() != QUAD_SPLIT){
+            result += node.getValue() +" ";
+        }
         if(node.getValue() == -1) {
+            result += "( ";
             result += preorder(node.getChild(Quadrant.UL));
             result += preorder(node.getChild(Quadrant.UR));
             result += preorder(node.getChild(Quadrant.LL));
             result += preorder(node.getChild(Quadrant.LR));
-
+            result += ") ";
         }
         return result;
 
@@ -60,8 +64,6 @@ public class QTree {
         String result = preorder(root);
         return result;
     }
-
-
 /*
     //Legal after uncompress has been called
     public int getRawSize() throws FourZipException{
