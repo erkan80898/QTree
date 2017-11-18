@@ -64,13 +64,13 @@ public class QTree {
         String result = preorder(root);
         return result;
     }
-/*
+
     //Legal after uncompress has been called
     public int getRawSize() throws FourZipException{
         if (rawImage == null){
             throw new FourZipException("The raw image does not exist");
         }else{
-            return root.
+            return rawSize;
         }
 
     }
@@ -80,19 +80,38 @@ public class QTree {
         if(rawImage == null){
             throw new FourZipException("The raw image does not exist");
         }else{
-
+            return rawImage;
         }
 
     }
 
-    private void uncompress(Coordinate coord, int dim2, FourZipNode node){
-
+    public int getSideDim(){
+        return dim;
     }
+
+    private void uncompress(Coordinate coord, int dim2, FourZipNode node){
+        if(node.getValue() != -1){
+            for(int i = coord.getRow();i<coord.getRow()+dim2;i++){
+                for(int j = coord.getCol();j<coord.getCol()+dim2;j++){
+                    rawImage[i][j] = node.getValue();
+                }
+            }
+
+        }else{
+            uncompress(new Coordinate(coord.getRow(),coord.getCol()),dim2/2,node.getChild(Quadrant.UL));
+            uncompress(new Coordinate(coord.getRow(),coord.getCol()+dim2/2),dim2/2,node.getChild(Quadrant.UR));
+            uncompress(new Coordinate(coord.getRow()+dim2/2,coord.getCol()),dim2/2,node.getChild(Quadrant.LL));
+            uncompress(new Coordinate(coord.getRow()+dim2/2,coord.getCol()+dim2/2),dim2/2,node.getChild(Quadrant.LR));
+
+        }
+    }
+
 
 
     //Use pre-order
     public void uncompress() throws FourZipException{
-        uncompress(Coordinate.ORIGIN,);
+        rawImage = new int[dim][dim];
+        uncompress(Coordinate.ORIGIN,dim,root);
     }
-*/
+
 }
