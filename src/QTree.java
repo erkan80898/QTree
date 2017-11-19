@@ -1,10 +1,7 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.FormatFlagsConversionMismatchException;
 
 public class QTree {
 
@@ -171,4 +168,28 @@ public class QTree {
         uncompress(Coordinate.ORIGIN,dim,root);
     }
 
+
+    public void writeCompressed(String outFile) throws IOException, FourZipException{
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(outFile))){
+            writer.write(Integer.toString(rawSize));
+            writeCompressed(root,writer);
+        }
+    }
+
+    private void writeCompressed(FourZipNode node, BufferedWriter writer) throws IOException{
+        String result = "";
+        if(node.getValue() != QUAD_SPLIT){
+            result += node.getValue() +" ";
+        }
+        if(node.getValue() == -1) {
+            preorder(node.getChild(Quadrant.UL));
+            preorder(node.getChild(Quadrant.UR));
+            preorder(node.getChild(Quadrant.LL));
+            preorder(node.getChild(Quadrant.LR));
+        }
+    }
+
+    public int getCompressedSize() throws FourZipException{
+        return 0;
+    }
 }
