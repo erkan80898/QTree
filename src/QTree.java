@@ -1,6 +1,10 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.FormatFlagsConversionMismatchException;
 
 public class QTree {
 
@@ -107,6 +111,60 @@ public class QTree {
     }
 
 
+    public static QTree rawFromFile(String inputFile) throws IOException{
+        QTree theQTree = new QTree();
+        Path path = Paths.get(inputFile);
+        long lineCount = Files.lines(path).count();
+        theQTree.rawSize = (int)lineCount;
+        theQTree.dim = (int)Math.sqrt(theQTree.rawSize);
+        theQTree.rawImage = new int[theQTree.dim][theQTree.dim];
+        try(BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            for(int i = 0;i<theQTree.dim;i++){
+                for(int j = 0;j<theQTree.dim;j++){
+                    if((line = reader.readLine())!=null)
+                    theQTree.rawImage[i][j] = Integer.parseInt(line);
+                }
+            }
+
+        }
+        return theQTree;
+    }
+
+    private boolean canCompressBlock(Coordinate start, int size){
+        if(size == 1){
+            return true;
+        }
+        int value = -1;
+        for (int i = start.getRow();i<Math.sqrt(size);i++){
+            for (int j = start.getCol();j<Math.sqrt(size);j++){
+                if(value==rawImage[i][j] || value == -1){
+                    value = rawImage[i][j];
+                }else{
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private FourZipNode compress(Coordinate start, int size){
+        FourZipNode node;
+        if(canCompressBlock(start,size)){
+            node = new FourZipNode(rawImage[start.getRow()][start.getCol()]);
+        }else{
+            node = new FourZipNode(compress(new Coordinate(start.getRow(),start.getCol()),(int)Math.sqrt(size))
+                    ,compress(new Coordinate(start.getRow(),start.getCol()+((int)Math.sqrt(size))/2),(int)Math.sqrt(size)),
+                    compress(new Coordinate(start.getRow()+((int)Math.sqrt(size))/2,start.getCol()),(int)Math.sqrt(size)),
+                    compress(new Coordinate(start.getRow()+((int)Math.sqrt(size))/2,start.getCol()+((int)Math.sqrt(size))/2),(int)Math.sqrt(size)));
+        }
+        System.out.println(node);
+        return node;
+    }
+
+    public void compress() throws FourZipException{
+        compress(Coordinate.ORIGIN,rawSize);
+    }
 
     //Use pre-order
     public void uncompress() throws FourZipException{
