@@ -136,8 +136,9 @@ public class QTree {
             return true;
         }
         int value = -1;
-        for (int i = start.getRow();i<Math.sqrt(size);i++){
-            for (int j = start.getCol();j<Math.sqrt(size);j++){
+        int side = (int)Math.sqrt(size);
+        for (int i = start.getRow();i<start.getRow()+side;i++){
+            for (int j = start.getCol();j<start.getCol()+side;j++){
                 if(value==rawImage[i][j] || value == -1){
                     value = rawImage[i][j];
                 }else{
@@ -149,17 +150,15 @@ public class QTree {
     }
 
     private FourZipNode compress(Coordinate start, int size){
-        FourZipNode node;
         if(canCompressBlock(start,size)){
-            node = new FourZipNode(rawImage[start.getRow()][start.getCol()]);
+            root = new FourZipNode(rawImage[start.getRow()][start.getCol()]);
         }else{
-            node = new FourZipNode(compress(new Coordinate(start.getRow(),start.getCol()),(int)Math.sqrt(size))
-                    ,compress(new Coordinate(start.getRow(),start.getCol()+((int)Math.sqrt(size))/2),(int)Math.sqrt(size)),
-                    compress(new Coordinate(start.getRow()+((int)Math.sqrt(size))/2,start.getCol()),(int)Math.sqrt(size)),
-                    compress(new Coordinate(start.getRow()+((int)Math.sqrt(size))/2,start.getCol()+((int)Math.sqrt(size))/2),(int)Math.sqrt(size)));
+            root = new FourZipNode(compress(new Coordinate(start.getRow(),start.getCol()),(int)((Math.sqrt(size)/2)*(Math.sqrt(size))/2)),
+                    compress(new Coordinate(start.getRow(),start.getCol()+(int)(Math.sqrt(size)/2)),(int)((Math.sqrt(size)/2)*(Math.sqrt(size))/2)),
+                    compress(new Coordinate(start.getRow()+(int)(Math.sqrt(size)/2),start.getCol()),(int)((Math.sqrt(size)/2)*(Math.sqrt(size))/2)),
+                    compress(new Coordinate(start.getRow()+(int)(Math.sqrt(size)/2),start.getCol()+(int)(Math.sqrt(size)/2)),(int)((Math.sqrt(size)/2)*(Math.sqrt(size))/2)));
         }
-        System.out.println(node);
-        return node;
+        return root;
     }
 
     public void compress() throws FourZipException{
