@@ -10,7 +10,7 @@ public class QTree {
     private int dim;
     private int[][] rawImage;
     private int rawSize;
-    private int compressedSize;
+    private int compressedSize = 0;
 
 
     QTree(){
@@ -87,7 +87,7 @@ public class QTree {
     }
 
     public int getSideDim(){
-        return dim;
+            return dim;
     }
 
     private void uncompress(Coordinate coord, int dim2, FourZipNode node){
@@ -159,37 +159,51 @@ public class QTree {
     }
 
     public void compress() throws FourZipException{
+        if(rawImage == null){
+            throw new FourZipException("The raw image does not exist");
+        }
         compress(Coordinate.ORIGIN,rawSize);
     }
 
     //Use pre-order
     public void uncompress() throws FourZipException{
+        if(root == null){
+            throw new FourZipException("Compressed image has been read in");
+        }
         rawImage = new int[dim][dim];
         uncompress(Coordinate.ORIGIN,dim,root);
     }
 
 
     public void writeCompressed(String outFile) throws IOException, FourZipException{
+        if(root == null){
+            throw new FourZipException("Compressed image has been read in");
+        }
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(outFile))){
-            writer.write(Integer.toString(rawSize));
+            writer.write(Integer.toString(rawSize)+"\n");
             writeCompressed(root,writer);
         }
     }
 
     private void writeCompressed(FourZipNode node, BufferedWriter writer) throws IOException{
-        String result = "";
-        if(node.getValue() != QUAD_SPLIT){
-            result += node.getValue() +" ";
-        }
-        if(node.getValue() == -1) {
-            preorder(node.getChild(Quadrant.UL));
-            preorder(node.getChild(Quadrant.UR));
-            preorder(node.getChild(Quadrant.LL));
-            preorder(node.getChild(Quadrant.LR));
+        if(node != null) {
+            writer.write(node.getValue() + "\n");
+            compressedSize += 1;
+            if (node.getValue() == -1) {
+                writeCompressed(node.getChild(Quadrant.UL), writer);
+                writeCompressed(node.getChild(Quadrant.UR), writer);
+                writeCompressed(node.getChild(Quadrant.LL), writer);
+                writeCompressed(node.getChild(Quadrant.LR), writer);
+            }
         }
     }
 
     public int getCompressedSize() throws FourZipException{
-        return 0;
+        if(rawImage == null){
+            throw new FourZipException("The raw image does not exist");
+        }else {
+            compressedSize += 1;
+            return compressedSize;
+        }
     }
 }
